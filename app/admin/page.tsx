@@ -1275,6 +1275,8 @@ export default function AdminPage() {
   const [serviceToDelete, setServiceToDelete] = React.useState<string | null>(null);
   const [specialtyToDelete, setSpecialtyToDelete] = React.useState<string | null>(null);
   const [transactionToDelete, setTransactionToDelete] = React.useState<string | null>(null);
+  const [patientToDelete, setPatientToDelete] = React.useState<string | null>(null);
+  const [patientToDischarge, setPatientToDischarge] = React.useState<string | null>(null);
 
   const handleAddSpecialty = () => {
     if (!newSpecialtyName.trim()) return;
@@ -3835,21 +3837,53 @@ export default function AdminPage() {
                     </div>
                     
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                          if (confirm(`Pretende dar Alta clínica ao utente ${selectedPat.name}?`)) {
+                      {patientToDelete === selectedPat.id ? (
+                        <div className="flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded-xl border border-rose-150">
+                          <span className="text-[10px] text-rose-600 font-bold px-1 hidden sm:inline">Apagar mesmo?</span>
+                          <button onClick={() => {
+                            const updatedPats = patients.filter(p => p.id !== selectedPat.id);
+                            savePatients(updatedPats);
+                            setIsCRMDrawerOpen(false);
+                            setPatientToDelete(null);
+                            pushNotification(`Ficha clínica do utente ${selectedPat.name} apagada com sucesso.`);
+                          }} className="text-rose-600 hover:text-rose-800 bg-white p-1 rounded-md shadow-sm border border-rose-100 transition-all"><Check className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => setPatientToDelete(null)} className="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-all"><X className="w-3.5 h-3.5" /></button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setPatientToDelete(selectedPat.id)}
+                          className="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-150 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all"
+                        >
+                          Apagar Ficha
+                        </button>
+                      )}
+                      
+                      {patientToDischarge === selectedPat.id ? (
+                        <div className="flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-xl border border-emerald-150">
+                          <span className="text-[10px] text-emerald-700 font-bold px-1 hidden sm:inline">Dar Alta?</span>
+                          <button onClick={() => {
                             const updatedPats = patients.map(p => p.id === selectedPat.id ? { ...p, status: 'Em Alta' as const } : p);
                             savePatients(updatedPats);
+                            setPatientToDischarge(null);
                             pushNotification(`Alta clínica concedida ao utente ${selectedPat.name}.`);
-                          }
-                        }}
-                        className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-150 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all"
-                      >
-                        Conceder Alta
-                      </button>
+                          }} className="text-emerald-700 hover:text-emerald-900 bg-white p-1 rounded-md shadow-sm border border-emerald-100 transition-all"><Check className="w-3.5 h-3.5" /></button>
+                          <button onClick={() => setPatientToDischarge(null)} className="text-slate-400 hover:text-slate-600 bg-white p-1 rounded-md shadow-sm border border-slate-100 transition-all"><X className="w-3.5 h-3.5" /></button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setPatientToDischarge(selectedPat.id)}
+                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-150 px-3 py-1.5 rounded-xl text-[10px] font-bold transition-all"
+                        >
+                          Conceder Alta
+                        </button>
+                      )}
                       <button
-                        onClick={() => setIsCRMDrawerOpen(false)}
-                        className="p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full border border-slate-150 transition-all"
+                        onClick={() => {
+                          setIsCRMDrawerOpen(false);
+                          setPatientToDelete(null);
+                          setPatientToDischarge(null);
+                        }}
+                        className="p-2 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-full border border-slate-150 transition-all ml-1"
                       >
                         <X className="w-4 h-4" />
                       </button>
