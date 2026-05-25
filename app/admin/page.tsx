@@ -1274,6 +1274,7 @@ export default function AdminPage() {
   const [newSpecialtyName, setNewSpecialtyName] = React.useState('');
   const [serviceToDelete, setServiceToDelete] = React.useState<string | null>(null);
   const [specialtyToDelete, setSpecialtyToDelete] = React.useState<string | null>(null);
+  const [transactionToDelete, setTransactionToDelete] = React.useState<string | null>(null);
 
   const handleAddSpecialty = () => {
     if (!newSpecialtyName.trim()) return;
@@ -1371,11 +1372,12 @@ export default function AdminPage() {
     setIsNewTxModalOpen(true);
   };
 
-  const handleDeleteTransaction = (id: string) => {
+  const handleConfirmDeleteTransaction = (id: string) => {
     const tx = transactions.find(t => t.id === id);
-    if (tx && confirm(`Tem a certeza que deseja remover este lançamento: "${tx.description}"?`)) {
+    if (tx) {
       const updated = transactions.filter(t => t.id !== id);
       saveTransactions(updated);
+      setTransactionToDelete(null);
       pushNotification(`Lançamento "${tx.description}" removido com sucesso.`);
     }
   };
@@ -3047,12 +3049,20 @@ export default function AdminPage() {
                                               >
                                                 Editar
                                               </button>
-                                              <button
-                                                onClick={() => handleDeleteTransaction(tx.id)}
-                                                className="text-rose-500 hover:text-rose-650 p-0.5"
-                                              >
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                              </button>
+                                              {transactionToDelete === tx.id ? (
+                                                <div className="flex items-center gap-1 bg-rose-50 px-2 py-0.5 rounded border border-rose-150">
+                                                  <span className="text-[9px] text-rose-600 font-bold">Apagar?</span>
+                                                  <button onClick={() => handleConfirmDeleteTransaction(tx.id)} className="text-rose-600 hover:text-rose-800 p-0.5"><Check className="w-3.5 h-3.5" /></button>
+                                                  <button onClick={() => setTransactionToDelete(null)} className="text-slate-400 hover:text-slate-600 p-0.5"><X className="w-3.5 h-3.5" /></button>
+                                                </div>
+                                              ) : (
+                                                <button
+                                                  onClick={() => setTransactionToDelete(tx.id)}
+                                                  className="text-rose-500 hover:text-rose-650 p-0.5"
+                                                >
+                                                  <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                              )}
                                             </div>
                                           </td>
                                         </tr>
